@@ -124,7 +124,7 @@ for i in range(len(annot_data)): # loop over total images
                 "lhip x": pointdata[0][6],
                 "lhip y": pointdata[0][7],
                 "lknee x": pointdata[0][8],
-                "lknee y": pointdata[0][8],
+                "lknee y": pointdata[0][9],
                 "lankle x": pointdata[0][10],
                 "lankle y": pointdata[0][11],
                 "pelvis x": pointdata[0][12],
