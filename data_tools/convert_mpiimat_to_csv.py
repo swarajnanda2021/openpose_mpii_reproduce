@@ -45,43 +45,6 @@ limbs = [(0,1), # r calf
          ]
 
 datalist = {} # create a dictionary to store our data
-keys = [
-    "Filename", 
-    "nPersons", 
-    "rankle x",
-    "rankle y",
-    "rknee x",
-    "rknee y",
-    "rhip x",
-    "rhip y",
-    "lhip x",
-    "lhip y",
-    "lknee x",
-    "lknee y",
-    "lankle x",
-    "lankle y",
-    "pelvis x",
-    "pelvis y",
-    "thorax x",
-    "thorax y",
-    "upperneck x",
-    "upperneck y",
-    "headtop x",
-    "headtop y",
-    "rwrist x",
-    "rwrist y",
-    "relbow x",
-    "relbow y",
-    "rshoulder x",
-    "rshoulder y",
-    "lshoulder x",
-    "lshoulder y",
-    "lelbow x",
-    "lelbow y",
-    "lwrist x",
-    "lwrist y"  
-]
-
 
 
 
@@ -150,6 +113,7 @@ for i in range(len(annot_data)): # loop over total images
                 pointdata[0,2*temp_id + 1] = temp_y    
         # Build a case to append to case_list (tedious but should work)                
         case = {"Filename": imgname, 'nPersons': nPersons[i],
+                "ImgNumber": i,
                 "totrain": train_test_classifier[i], 
                 "rankle x": pointdata[0][0],
                 "rankle y": pointdata[0][1],
