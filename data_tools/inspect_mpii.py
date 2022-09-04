@@ -30,7 +30,7 @@ def gaussiankernel2D(halfwidth=3,spread=5):
     TwoDkernel = kernel*(kernel.T)
     return TwoDkernel#, plt.imshow(TwoDkernel)
 
-# generate a heatmap for a single keypoint    
+# generate a heatmap for a single keypoint (survives keypoints too close to image boundaries by padding, adding and then center cropping)
 def generateHeatmap1Joint(imgsize=[1024,1024],posx=1000,posy=600,kernelhalfwidth=100,spread=30):  
     
     img = np.zeros((imgsize[1], imgsize[0]), dtype=float)
