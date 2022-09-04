@@ -70,90 +70,94 @@ annot_data = release.__dict__['annolist']
 nPersons = np.zeros(len(annot_data)) # pre assign nPersons array for reference
 
 
-
-#with open(r'../mpii/dataset.csv', 'w',newline='') as fp:
-#    writer = csv.writer(fp)    
 case_list = []
 counter = 0
+counterimg=0
 for i in range(len(annot_data)): # loop over total images
    
     print(i)
     imgname = annot_data[i].image.name
     nPersons[i] = np.size(annot_data[i].annorect) 
     
-    for j in range(np.size(annot_data[i].annorect)): # loop over people
+    if nPersons[i]>0:
+        counterimg+=1
+        for j in range(np.size(annot_data[i].annorect)): # loop over people
+            
+            
+            datalist[counter,0] = imgname
+            datalist[counter,1] = nPersons[i]
         
-        
-        datalist[counter,0] = imgname
-        datalist[counter,1] = nPersons[i]
-    
-        # Create line entries in the csv file you will write    
-        item = (imgname, nPersons[i]) # image info
-        pointdata = np.ones((1,32))*-1 # fill -1 for no-show body parts
-        if np.size(annot_data[i].annorect) == 1:
-            temp_ = annot_data[i].annorect
-        else:
-            temp_ = annot_data[i].annorect[j]
-        if hasattr(temp_,'annopoints') == True and np.size(temp_.annopoints)>0:    # added this for some images that do not have point data in them at all
-            # pre-assign points variable    
-            for k in range(np.size(temp_.annopoints.point)): # loop over body parts present
-            #for k in range(np.size(temp_.annopoints.point)): # loop over body parts present
-                
-                if np.size(temp_.annopoints.point) > 1:
-                    temp_id  = temp_.annopoints.point[k].id
-                    temp_x = int(np.ceil(temp_.annopoints.point[k].x))
-                    temp_y = int(np.ceil(temp_.annopoints.point[k].y))
+            # Create line entries in the csv file you will write    
+            item = (imgname, nPersons[i]) # image info
+            pointdata = np.ones((1,32))*-1 # fill -1 for no-show body parts
+            if np.size(annot_data[i].annorect) == 1:
+                temp_ = annot_data[i].annorect
+            else:
+                temp_ = annot_data[i].annorect[j]
+            if hasattr(temp_,'annopoints') == True and np.size(temp_.annopoints)>0:    # added this for some images that do not have point data in them at all
+                # pre-assign points variable    
+                for k in range(np.size(temp_.annopoints.point)): # loop over body parts present
+                #for k in range(np.size(temp_.annopoints.point)): # loop over body parts present
                     
-                else:
-                    temp_id  = temp_.annopoints.point.id
-                    temp_x = int(np.ceil(temp_.annopoints.point.x))
-                    temp_y = int(np.ceil(temp_.annopoints.point.y))
-                    
-                pointdata[0,2*temp_id] = temp_x    
-                pointdata[0,2*temp_id + 1] = temp_y    
-        # Build a case to append to case_list (tedious but should work)                
-        case = {"Filename": imgname, 'nPersons': nPersons[i],
-                "ImgNumber": i,
-                "totrain": train_test_classifier[i], 
-                "rankle x": pointdata[0][0],
-                "rankle y": pointdata[0][1],
-                "rknee x": pointdata[0][2],
-                "rknee y": pointdata[0][3],
-                "rhip x": pointdata[0][4],
-                "rhip y": pointdata[0][5],
-                "lhip x": pointdata[0][6],
-                "lhip y": pointdata[0][7],
-                "lknee x": pointdata[0][8],
-                "lknee y": pointdata[0][9],
-                "lankle x": pointdata[0][10],
-                "lankle y": pointdata[0][11],
-                "pelvis x": pointdata[0][12],
-                "pelvis y": pointdata[0][13],
-                "thorax x": pointdata[0][14],
-                "thorax y": pointdata[0][15],
-                "upperneck x": pointdata[0][16],
-                "upperneck y": pointdata[0][17],
-                "headtop x": pointdata[0][18],
-                "headtop y": pointdata[0][19],
-                "rwrist x": pointdata[0][20],
-                "rwrist y": pointdata[0][21],
-                "relbow x": pointdata[0][22],
-                "relbow y": pointdata[0][23],
-                "rshoulder x": pointdata[0][24],
-                "rshoulder y": pointdata[0][25],
-                "lshoulder x": pointdata[0][26],
-                "lshoulder y": pointdata[0][27],
-                "lelbow x": pointdata[0][28],
-                "lelbow y": pointdata[0][29],
-                "lwrist x": pointdata[0][30],
-                "lwrist y": pointdata[0][31]
-                }
-        
-        
-        
-        
-        case_list.append(case)       
+                    if np.size(temp_.annopoints.point) > 1:
+                        temp_id  = temp_.annopoints.point[k].id
+                        temp_x = int(np.ceil(temp_.annopoints.point[k].x))
+                        temp_y = int(np.ceil(temp_.annopoints.point[k].y))
+                        
+                    else:
+                        temp_id  = temp_.annopoints.point.id
+                        temp_x = int(np.ceil(temp_.annopoints.point.x))
+                        temp_y = int(np.ceil(temp_.annopoints.point.y))
+                        
+                    pointdata[0,2*temp_id] = temp_x    
+                    pointdata[0,2*temp_id + 1] = temp_y    
+            # Build a case to append to case_list (tedious but should work)                
+            case = {"Filename": imgname, 'nPersons': nPersons[i],
+                    "ImgNumber": i,
+                    "totrain": train_test_classifier[i], 
+                    "rankle x": pointdata[0][0],
+                    "rankle y": pointdata[0][1],
+                    "rknee x": pointdata[0][2],
+                    "rknee y": pointdata[0][3],
+                    "rhip x": pointdata[0][4],
+                    "rhip y": pointdata[0][5],
+                    "lhip x": pointdata[0][6],
+                    "lhip y": pointdata[0][7],
+                    "lknee x": pointdata[0][8],
+                    "lknee y": pointdata[0][9],
+                    "lankle x": pointdata[0][10],
+                    "lankle y": pointdata[0][11],
+                    "pelvis x": pointdata[0][12],
+                    "pelvis y": pointdata[0][13],
+                    "thorax x": pointdata[0][14],
+                    "thorax y": pointdata[0][15],
+                    "upperneck x": pointdata[0][16],
+                    "upperneck y": pointdata[0][17],
+                    "headtop x": pointdata[0][18],
+                    "headtop y": pointdata[0][19],
+                    "rwrist x": pointdata[0][20],
+                    "rwrist y": pointdata[0][21],
+                    "relbow x": pointdata[0][22],
+                    "relbow y": pointdata[0][23],
+                    "rshoulder x": pointdata[0][24],
+                    "rshoulder y": pointdata[0][25],
+                    "lshoulder x": pointdata[0][26],
+                    "lshoulder y": pointdata[0][27],
+                    "lelbow x": pointdata[0][28],
+                    "lelbow y": pointdata[0][29],
+                    "lwrist x": pointdata[0][30],
+                    "lwrist y": pointdata[0][31]
+                    }
+            
+            
+            
+            
+            case_list.append(case)       
         
         
 dataset_mpii = pd.DataFrame.from_dict(case_list)
-dataset_mpii.to_csv('../mpii/dataset.csv')      
+dataset_mpii.to_csv('../mpii/dataset.csv')        
+
+
+
+
