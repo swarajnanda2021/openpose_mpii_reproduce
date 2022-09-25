@@ -9,7 +9,6 @@ import cv2
 import scipy.io as spio
 import csv
 
-# Some basic book entries for self
 body_part = [0, #- r ankle,
              1, # - r knee,
              2, # - r hip,
@@ -45,6 +44,43 @@ limbs = [(0,1), # r calf
          ]
 
 datalist = {} # create a dictionary to store our data
+keys = [
+    "Filename", 
+    "nPersons", 
+    "rankle x",
+    "rankle y",
+    "rknee x",
+    "rknee y",
+    "rhip x",
+    "rhip y",
+    "lhip x",
+    "lhip y",
+    "lknee x",
+    "lknee y",
+    "lankle x",
+    "lankle y",
+    "pelvis x",
+    "pelvis y",
+    "thorax x",
+    "thorax y",
+    "upperneck x",
+    "upperneck y",
+    "headtop x",
+    "headtop y",
+    "rwrist x",
+    "rwrist y",
+    "relbow x",
+    "relbow y",
+    "rshoulder x",
+    "rshoulder y",
+    "lshoulder x",
+    "lshoulder y",
+    "lelbow x",
+    "lelbow y",
+    "lwrist x",
+    "lwrist y"  
+]
+
 
 
 
@@ -70,26 +106,22 @@ annot_data = release.__dict__['annolist']
 nPersons = np.zeros(len(annot_data)) # pre assign nPersons array for reference
 
 
+
 case_list = []
 counter = 0
 counterimg=0
 for i in range(len(annot_data)): # loop over total images
-   
     print(i)
     imgname = annot_data[i].image.name
     nPersons[i] = np.size(annot_data[i].annorect) 
-    
     if nPersons[i]>0:
         counterimg+=1
         for j in range(np.size(annot_data[i].annorect)): # loop over people
-            
-            
             datalist[counter,0] = imgname
             datalist[counter,1] = nPersons[i]
-        
             # Create line entries in the csv file you will write    
             item = (imgname, nPersons[i]) # image info
-            pointdata = np.ones((1,32))*-1 # fill -1 for no-show body parts
+            pointdata = np.ones((1,32))*-1 # fill 10000 for no-show body parts
             if np.size(annot_data[i].annorect) == 1:
                 temp_ = annot_data[i].annorect
             else:
@@ -98,19 +130,33 @@ for i in range(len(annot_data)): # loop over total images
                 # pre-assign points variable    
                 for k in range(np.size(temp_.annopoints.point)): # loop over body parts present
                 #for k in range(np.size(temp_.annopoints.point)): # loop over body parts present
-                    
                     if np.size(temp_.annopoints.point) > 1:
                         temp_id  = temp_.annopoints.point[k].id
                         temp_x = int(np.ceil(temp_.annopoints.point[k].x))
                         temp_y = int(np.ceil(temp_.annopoints.point[k].y))
-                        
                     else:
                         temp_id  = temp_.annopoints.point.id
                         temp_x = int(np.ceil(temp_.annopoints.point.x))
                         temp_y = int(np.ceil(temp_.annopoints.point.y))
-                        
                     pointdata[0,2*temp_id] = temp_x    
                     pointdata[0,2*temp_id + 1] = temp_y    
+                    
+            # Go over the keypoints per person and construct a bounding box around them
+            personKeypts = pointdata[:, np.all(pointdata > 0, axis=0)] # create a proxy for pointdata so it can be manipulated
+            padsize=15
+            if np.size(personKeypts) == 0:
+                posxmin = -1 
+                posymin = -1
+                posxmax = -1
+                posymax = -1
+            else:
+                posxmin = np.amax([np.min(personKeypts[0][::2])-padsize,0]) 
+                posymin = np.amax([np.min(personKeypts[0][1::2])-padsize,0])
+                posxmax = np.amin([np.max(personKeypts[0][::2])+padsize,1280])
+                posymax = np.amin([np.max(personKeypts[0][1::2])+padsize,720])                   
+                        
+            
+            
             # Build a case to append to case_list (tedious but should work)                
             case = {"Filename": imgname, 'nPersons': nPersons[i],
                     "ImgNumber": i,
@@ -146,18 +192,14 @@ for i in range(len(annot_data)): # loop over total images
                     "lelbow x": pointdata[0][28],
                     "lelbow y": pointdata[0][29],
                     "lwrist x": pointdata[0][30],
-                    "lwrist y": pointdata[0][31]
+                    "lwrist y": pointdata[0][31],
+                    "minkeypt x": posxmin, # Causes -1 to be registered
+                    "minkeypt y": posymin,
+                    "maxkeypt x": posxmax,
+                    "maxkeypt y": posymax
                     }
-            
-            
-            
-            
             case_list.append(case)       
         
-        
+# Save dataset to csv
 dataset_mpii = pd.DataFrame.from_dict(case_list)
-dataset_mpii.to_csv('../mpii/dataset.csv')        
-
-
-
-
+dataset_mpii.to_csv('../mpii/dataset.csv')    
